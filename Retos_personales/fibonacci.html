@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serie Fibonacci</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap">
+    <style>
+        :root {
+            --papel: #edf0e3;
+            --ficha: #f8f9f2;
+            --pino: #1e3b2f;
+            --girasol: #f0b62b;
+            --semilla: #5a3e2b;
+            --borde: #c9d0b8;
+            --fuente: "Bricolage Grotesque", system-ui, sans-serif;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background: var(--papel);
+            color: var(--pino);
+            font-family: var(--fuente);
+            line-height: 1.5;
+        }
+
+        main {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 3rem 1.25rem 4rem;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(2.4rem, 7vw, 4.5rem);
+            font-weight: 800;
+            line-height: 1;
+            letter-spacing: -0.03em;
+        }
+
+        .intro {
+            margin: 0.75rem 0 2rem;
+            max-width: 46ch;
+            color: var(--semilla);
+            font-size: 1.1rem;
+        }
+
+        /* Formulario */
+        form {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            gap: 0.75rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.25rem;
+            font-weight: 600;
+        }
+
+        input {
+            width: 9rem;
+            padding: 0.65rem 0.8rem;
+            border: 2px solid var(--pino);
+            border-radius: 8px;
+            background: var(--ficha);
+            color: var(--pino);
+            font: inherit;
+            font-size: 1.15rem;
+        }
+
+        button {
+            font: inherit;
+            cursor: pointer;
+        }
+
+        .boton {
+            padding: 0.7rem 1.3rem;
+            border: 2px solid var(--pino);
+            border-radius: 8px;
+            background: var(--pino);
+            color: var(--papel);
+            font-weight: 600;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .boton:hover { background: var(--girasol); color: var(--pino); }
+
+        .boton.secundario { background: transparent; color: var(--pino); }
+        .boton.secundario:hover { background: var(--girasol); }
+
+        :focus-visible {
+            outline: 3px solid var(--girasol);
+            outline-offset: 2px;
+        }
+
+        #mensaje {
+            min-height: 1.5rem;
+            margin: 0.5rem 0 0;
+            color: #a3331f;
+            font-weight: 600;
+        }
+
+        /* Resumen y detalle */
+        .barra {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 0.75rem 1.5rem;
+            margin: 1.5rem 0 1rem;
+            padding: 1rem 1.25rem;
+            border-left: 6px solid var(--girasol);
+            background: var(--ficha);
+            border-radius: 0 8px 8px 0;
+        }
+
+        #resumen { margin: 0; font-weight: 600; }
+        #detalle { margin: 0; color: var(--semilla); overflow-wrap: anywhere; }
+
+        /* Fichas con los números */
+        #serie {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 0.75rem;
+            padding: 0;
+            margin: 0;
+        }
+
+        .ficha {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 0.4rem;
+            min-height: 92px;
+            padding: 0.7rem 0.8rem 1rem;
+            border: 1px solid var(--borde);
+            border-radius: 10px;
+            background: var(--ficha);
+            color: var(--pino);
+            text-align: left;
+            overflow: hidden;
+            animation: aparecer 0.4s ease-out both;
+            animation-delay: var(--retraso, 0ms);
+        }
+
+        /* Barra inferior: más larga cuanto más dígitos tiene el número */
+        .ficha::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            height: 6px;
+            width: var(--fill, 10%);
+            background: var(--girasol);
+        }
+
+        .ficha:hover { border-color: var(--pino); }
+
+        .ficha.activa {
+            background: var(--pino);
+            border-color: var(--pino);
+            color: var(--papel);
+        }
+
+        .posicion { font-size: 0.85rem; color: var(--semilla); }
+        .ficha.activa .posicion { color: var(--girasol); }
+
+        .valor {
+            font-size: 1.35rem;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+            overflow-wrap: anywhere;
+        }
+
+        @keyframes aparecer {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: none; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .ficha { animation: none; }
+        }
+    </style>
+    <!-- "defer" hace que el script se ejecute cuando la página ya cargó,
+         así los elementos del HTML ya existen -->
+    <script src="fibonacci.js" defer></script>
+</head>
+<body>
+    <main>
+        <h1>Serie de Fibonacci</h1>
+        <p class="intro">Cada número es la suma de los dos anteriores. Empieza con 0 y 1.</p>
+
+        <form id="formulario">
+            <div>
+                <label for="cantidad">¿Cuántos números quieres ver?</label>
+                <input id="cantidad" type="number" min="4" max="100" step="1" value="20">
+            </div>
+            <button class="boton" type="submit">Mostrar serie</button>
+            <button class="boton secundario" type="button" id="copiar">Copiar serie</button>
+        </form>
+        <p id="mensaje" role="alert"></p>
+
+        <div class="barra">
+            <p id="resumen"></p>
+            <p id="detalle">Toca un número para ver de dónde sale.</p>
+        </div>
+
+        <div id="serie"></div>
+    </main>
+</body>
+</html>
